@@ -23,18 +23,7 @@ public class VecArr<T> implements Vec<T> {
      */
     @Override
     public void append(T element) {
-        if (element == null) throw new NullPointerException("element to be appended cannot be null");
-        if (this.length == this.capacity) {
-            // re-alloc to bigger array and copy over existing elements
-            int reCapacity = this.length * 2;
-            Object[] reArr = new Object[reCapacity];
-            System.arraycopy(this.arr, 0, reArr, 0, this.length);
-            this.arr = reArr;
-            this.capacity = reCapacity;
-        }
-        // append element at the end of the vector
-        this.arr[this.length] = element;
-        length++;
+        this.insert(element, this.length);
     }
 
     /**
@@ -84,21 +73,8 @@ public class VecArr<T> implements Vec<T> {
      * @return the element at the end of the vector that was deleted
      */
     @Override
-    @SuppressWarnings("unchecked")
     public T pop() {
-        if (this.length * 2 < this.capacity) {
-            // re-alloc to smaller array and copy over existing elements
-            int reCapacity = this.length;
-            Object[] reArr = new Object[reCapacity];
-            System.arraycopy(this.arr, 0, reArr, 0, this.length);
-            this.arr = reArr;
-            this.capacity = reCapacity;
-        }
-        // this should be a safe cast, as we are trying to cast back to the type that the vec is made up of
-        T poppedElement = (T) this.arr[this.length];
-        this.arr[this.length] = null;
-        this.length--;
-        return poppedElement;
+        return this.delete(this.length - 1);
     }
 
     /**
@@ -109,7 +85,50 @@ public class VecArr<T> implements Vec<T> {
      */
     @Override
     public void insert(T element, int index) {
-        throw new RuntimeException("To be implemented");
+        if (element == null) throw new NullPointerException("element to be inserted cannot be null");
+        if (index < 0 || index > this.length) {
+            throw new IndexOutOfBoundsException(
+                    "index:: " + index + " is out of bounds on vec of length:: " + this.length
+            );
+        }
+        if (this.length < this.capacity) {
+            System.arraycopy(this.arr, index, this.arr, index + 1, this.length - index);
+            this.arr[index] = element;
+            this.length++;
+            return;
+        }
+        int reCapacity = this.length * 2;
+        Object[] reArr = new Object[reCapacity];
+        System.arraycopy(this.arr, 0, reArr, 0, index);
+        reArr[index] = element;
+        System.arraycopy(this.arr, index, reArr, index + 1, this.length - index);
+        this.length++;
+        this.arr = reArr;
+        this.capacity = reCapacity;
+    }
+
+    /**
+     * re allocates the array into a bigger array with twice the capacity and copies over the elements
+     */
+    private void grow() {
+        // re-alloc to bigger array and copy over existing elements
+        int reCapacity = this.length * 2;
+        Object[] reArr = new Object[reCapacity];
+        System.arraycopy(this.arr, 0, reArr, 0, this.length);
+        this.arr = reArr;
+        this.capacity = reCapacity;
+    }
+
+    /**
+     * re allocates the array into a smaller array with half the capacity and copies over the elements
+     */
+    private void shrink() {
+        // re-alloc to smaller array and copy over existing elements
+        int reCapacity = this.length;
+        Object[] reArr = new Object[reCapacity];
+        System.arraycopy(this.arr, 0, reArr, 0, this.length);
+        this.arr = reArr;
+        this.capacity = reCapacity;
     }
 
     /**
@@ -119,7 +138,46 @@ public class VecArr<T> implements Vec<T> {
      * @return element that was deleted
      */
     @Override
+    @SuppressWarnings("unchecked")
     public T delete(int index) {
-        throw new RuntimeException("To be implemented");
+        if (index < 0 || index >= this.length) {
+            throw new IndexOutOfBoundsException(
+                    "index:: " + index + "is out of bounds on vec of length:: " + this.length
+            );
+        }
+        if (this.length * 2 < this.capacity) {
+            int reCapacity = this.length;
+            Object[] reArr = new Object[reCapacity];
+            T deletedElement = (T) this.arr[index];
+            System.arraycopy(this.arr, 0, reArr, 0, index);
+            System.arraycopy(this.arr, index + 1, reArr, index, this.length - index);
+            reArr[this.length - 1] = null;
+            this.length--;
+            this.capacity = reCapacity;
+            this.arr = reArr;
+            return deletedElement;
+         }
+        T deletedElement = (T) this.arr[index];
+        System.arraycopy(this.arr, index + 1, this.arr, index, this.length - index);
+        this.arr[this.length] = null;
+        this.length--;
+        return deletedElement;
+    }
+
+    private static final String OPEN = "[ ";
+    private static final String CLOSE = "]";
+    private static final String SEPERATOR = " ";
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(OPEN);
+        for (int i = 0; i < this.length; i++) {
+            String objectRepr = this.arr[i].toString();
+            sb.append(objectRepr);
+            sb.append(SEPERATOR);
+        }
+        sb.append(CLOSE);
+        return sb.toString();
     }
 }
