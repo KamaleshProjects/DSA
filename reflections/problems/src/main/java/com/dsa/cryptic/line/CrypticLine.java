@@ -42,7 +42,7 @@ public class CrypticLine {
      * 1 <= U, V <= N
      * 1 <= X, Y <= N
      */
-    public void readInputStdIn() {
+    public Input readInputStdIn() {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         try {
             String NStr = br.readLine();
@@ -79,15 +79,19 @@ public class CrypticLine {
                 ancestralQueries[i][1] = y;
             }
 
-            // construct a tree lib
-
+            return new Input(ancestralConnection, ancestralQueries);
 
         } catch (IOException e) {
             log.log(Level.SEVERE, "error during reading of input from stdin", e);
+            throw new RuntimeException(e);
         }
     }
 
+    /**
+     * entrypoint for solving the problem
+     */
     public void solve() {
+        Input input = readInputStdIn();
 
     }
 

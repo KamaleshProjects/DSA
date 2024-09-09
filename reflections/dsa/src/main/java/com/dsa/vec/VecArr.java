@@ -2,7 +2,7 @@ package com.dsa.vec;
 
 /**
  * Provides an implementation for a {@link Vec} that is backed by an array
- * @param <T>
+ * @param <T> type of the elements in the vector
  */
 public class VecArr<T> implements Vec<T> {
 
@@ -10,10 +10,15 @@ public class VecArr<T> implements Vec<T> {
     private Object[] arr;
     private int capacity;
 
+    private final static int INITIAL_CAPACITY = 2;
+
+    /**
+     *
+     */
     public VecArr() {
-        this.arr = new Object[2];
+        this.arr = new Object[INITIAL_CAPACITY];
         this.length = 0;
-        this.capacity = 2;
+        this.capacity = INITIAL_CAPACITY;
     }
 
     /**
